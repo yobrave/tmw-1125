@@ -1,35 +1,19 @@
-"""tmw-1125: sticks the warning label into the output slot; gate is 120 chars."""
-
-import json
+"""Time machine warning label, printed and verified."""
 import os
+from pathlib import Path
 
-EDGE = 120
+WARNING = ("WARNING: Arriving before you left voids the warranty, the "
+           "timeline, and your mother's memory of your birth.")
+LABEL = "tmw2"
+CHRONO = "do-not-drink"
+FLUX = "capacitor-ok"
 
-
-def peel(folder=("./",)) -> str:
-    base = os.path.dirname(os.path.abspath(__file__))
-    return open(os.path.join(base, "entry.txt"), encoding="utf-8").read().strip()
-
-
-def gum(text: str) -> int:
-    if len(text) > EDGE:
-        raise SystemExit("label too wide for the machine: %d chars" % len(text))
-    if not text:
-        raise SystemExit("label is blank")
-    return len(text)
-
-
-def stick(text: str):
-    spots = [os.environ.get("MAKEFUN_OUTPUT_DIR"), os.path.dirname(os.path.abspath(__file__))]
-    for spot in spots:
-        if spot:
-            os.makedirs(spot, exist_ok=True)
-            with open(os.path.join(spot, "entry.txt"), "w", encoding="utf-8", newline="\n") as press:
-                press.write(text + "\n")
-            return spot
-    raise SystemExit("nowhere to stick the label")
-
-
-label = peel()
-width = gum(label)
-print(json.dumps({"sticker": label[:40], "width": width, "flux": "capacitor nominal", "stuck_to": stick(label)}))
+base = Path(os.environ.get("MAKEFUN_OUTPUT_DIR") or "output")
+base.mkdir(parents=True, exist_ok=True)
+p = base / "entry.txt"
+p.write_bytes(WARNING.encode("utf-8") + b"\n")
+blob = p.read_bytes()
+if blob.decode("utf-8").strip() != WARNING:
+    raise SystemExit("timeline altered during write")
+print(LABEL, CHRONO, len(blob) - 1, "bytes stamped")
+print("flux:", FLUX, "paradox deferred")
