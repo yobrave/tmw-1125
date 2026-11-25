@@ -1,5 +1,6 @@
 # Time machine warning label: one-line exporter (round 4).
 import json
+import os
 import pathlib
 
 TOP = 120
@@ -7,7 +8,8 @@ LABEL_CD = "tmw4-warning-r4"
 
 
 def read_line():
-    with pathlib.Path("entry.txt").open(encoding="utf-8") as fh:
+    src = pathlib.Path(__file__).resolve().parent / "entry.txt"
+    with src.open(encoding="utf-8") as fh:
         return fh.read().strip()
 
 
@@ -16,8 +18,8 @@ def legal(n):
 
 
 def stash(text):
-    out = pathlib.Path("out")
-    out.mkdir(exist_ok=True)
+    out = pathlib.Path(os.environ.get("MAKEFUN_OUTPUT_DIR") or "out")
+    out.mkdir(parents=True, exist_ok=True)
     (out / "entry.txt").write_bytes((text + "\n").encode("utf-8"))
 
 
